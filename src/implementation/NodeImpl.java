@@ -3,6 +3,8 @@ package implementation;
 import interfaces.Node;
 
 import java.io.Serializable;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +14,18 @@ public class NodeImpl implements Node {
 	private int mId;
 	private Map<Integer, Serializable> mData;
 	
-	public NodeImpl(Node predecessor, Node successor, int id) {
+	public NodeImpl(int predecessorId, int successorId, int id) {
 		mData = new HashMap<Integer, Serializable>();
-		mPredecessor = predecessor;
-		mSuccessor = successor;
+		if(predecessorId == id){
+			mPredecessor = this;
+		}else{
+			mPredecessor = findNodeByid(predecessorId);
+		}
+		if(successorId == id){
+			mSuccessor = this;
+		}else{
+			mSuccessor = findNodeByid(successorId);
+		}
 		mId = id;
 	}
 
@@ -85,5 +95,23 @@ public class NodeImpl implements Node {
 			return (!(key<=mPredecessor.getId() && key>mId));
 		}
 	}
-
+	
+	private Node findNodeByid(int id){
+		try {
+			Registry registry = LocateRegistry.getRegistry();
+			Node node = (Node)registry.lookup(""+id);
+			return node;
+		}catch (Exception e){
+			return null;
+		}
+	}
+	
+	public static void main(String args[]) {
+		try {
+			
+		} catch (Exception e) {
+		    System.err.println("Node exception: " + e.toString());
+		    e.printStackTrace();
+		}
+	    }
 }
