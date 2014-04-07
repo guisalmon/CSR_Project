@@ -1,23 +1,27 @@
 package implementation;
 
-import java.rmi.RemoteException;
-
 import interfaces.Node;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class Main {
 
 	public static void main(String args[]) {
 		
 		try {
-			Node n1 = new NodeImpl(0, 0, 0);
-			Node n2 = new NodeImpl(0, 0, 5);
+			Registry registry = LocateRegistry.getRegistry();
+			Node n1 = (Node) registry.lookup("0");
+			Node n2 = (Node) registry.lookup("5");
 			n2.display();
 			
 			n1.setPredecessor(5);
 			n1.setSuccessor(5);
 			n1.display();
 			
-			Node n3 = new NodeImpl(n1.findSuccessor(10).getPredecessor().getId(), n1.findSuccessor(10).getId(), 10);
+			Node n3 = (Node) registry.lookup("10");
+			n3.setPredecessor(n1.findSuccessor(10).getPredecessor().getId());
+			n3.setSuccessor(n1.findSuccessor(10).getId());
 			n1.findSuccessor(10).getPredecessor().setSuccessor(10);
 			n1.findSuccessor(10).setPredecessor(10);
 			n3.display();
@@ -30,7 +34,7 @@ public class Main {
 			n3.display();
 			n2.display();
 			n1.display();
-		} catch (RemoteException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
