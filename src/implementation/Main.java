@@ -9,13 +9,13 @@ public class Main {
 		Node n2 = new NodeImpl(0, 0, 5);
 		n2.display();
 		
-		n1.setPredecessor(n2);
-		n1.setSuccessor(n2);
+		n1.setPredecessor(5);
+		n1.setSuccessor(5);
 		n1.display();
 		
 		Node n3 = new NodeImpl(n1.findSuccessor(10).getPredecessor().getId(), n1.findSuccessor(10).getId(), 10);
-		n1.findSuccessor(10).getPredecessor().setSuccessor(n3);
-		n1.findSuccessor(10).setPredecessor(n3);
+		n1.findSuccessor(10).getPredecessor().setSuccessor(10);
+		n1.findSuccessor(10).setPredecessor(10);
 		n3.display();
 		n2.display();
 		n1.display();

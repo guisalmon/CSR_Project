@@ -5,6 +5,7 @@ import interfaces.Node;
 import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,13 +62,13 @@ public class NodeImpl implements Node {
 	}
 
 	@Override
-	public void setPredecessor(Node n) {
-		mPredecessor = n;
+	public void setPredecessor(int n) {
+		mPredecessor = findNodeByid(n);
 	}
 
 	@Override
-	public void setSuccessor(Node n) {
-		mSuccessor = n;
+	public void setSuccessor(int n) {
+		mSuccessor = findNodeByid(n);
 	}
 
 	@Override
@@ -108,10 +109,19 @@ public class NodeImpl implements Node {
 	
 	public static void main(String args[]) {
 		try {
-			
+			if (args.length >= 3){
+				Node obj = new NodeImpl(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+			    Node stub = (Node) UnicastRemoteObject.exportObject(obj, 0);
+	
+			    // Bind the remote object's stub in the registry
+			    Registry registry = LocateRegistry.getRegistry();
+			    registry.bind(args[0], stub);
+	
+			    System.err.println("Node "+args[0]+" ready");
+			}
 		} catch (Exception e) {
 		    System.err.println("Node exception: " + e.toString());
 		    e.printStackTrace();
 		}
-	    }
+	}
 }
