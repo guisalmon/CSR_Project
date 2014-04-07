@@ -3,6 +3,7 @@ package implementation;
 import interfaces.Node;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -52,7 +53,11 @@ public class NodeImpl implements Node {
 			mData.put(key, value);
 		}else{
 			System.out.println("Invalid : "+key+" in "+mId);
-			mSuccessor.update(key, value);
+			try {
+				mSuccessor.update(key, value);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -74,26 +79,40 @@ public class NodeImpl implements Node {
 	@Override
 	public Node findSuccessor(int id) {
 		if (isKeyValid(id)) return this;
-		else return mSuccessor.findSuccessor(id);
+		else
+			try {
+				return mSuccessor.findSuccessor(id);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				return null;
+			}
 	}
 
 	@Override
 	public void display() {
-		System.out.println("Node "+mId+" : ");
-		System.out.println("	Successor "+mSuccessor.getId());
-		System.out.println("	Predecessor "+mPredecessor.getId());
-		System.out.println("	Data :");
-		for(Serializable s : mData.values()){
-				System.out.println("		"+s);
+		try {
+			System.out.println("Node "+mId+" : ");
+			System.out.println("	Successor "+mSuccessor.getId());
+			System.out.println("	Predecessor "+mPredecessor.getId());
+			System.out.println("	Data :");
+			for(Serializable s : mData.values()){
+					System.out.println("		"+s);
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
-		
 	}
 
 	private boolean isKeyValid(int key) {
-		if (mPredecessor.getId()<mId){
-			return (key>mPredecessor.getId() && key<=mId);
-		}else{
-			return (!(key<=mPredecessor.getId() && key>mId));
+		try {
+			if (mPredecessor.getId()<mId){
+				return (key>mPredecessor.getId() && key<=mId);
+			}else{
+				return (!(key<=mPredecessor.getId() && key>mId));
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 	
@@ -115,12 +134,12 @@ public class NodeImpl implements Node {
 	
 			    // Bind the remote object's stub in the registry
 			    Registry registry = LocateRegistry.getRegistry();
-			    registry.bind(args[0], stub);
+			    registry.bind(args[2], stub);
 	
-			    System.err.println("Node "+args[0]+" ready");
+			    System.err.println("Node "+args[2]+" ready");
 			}
 		} catch (Exception e) {
-		    System.err.println("Node exception: " + e.toString());
+		    System.err.println("Node "+args[2]+" exception: " + e.toString());
 		    e.printStackTrace();
 		}
 	}
